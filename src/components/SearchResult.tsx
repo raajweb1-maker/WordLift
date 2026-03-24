@@ -85,7 +85,7 @@ export function SearchResult({ data }: { data: any }) {
             </div>
           ) : (
             <div className="space-y-8">
-              {["Academic", "Poetic", "Professional", "Standard"].map(category => {
+              {["Academic", "Poetic", "Professional", "Common", "Standard"].map(category => {
                 const words = categorizedSynonyms.filter(s => s.category === category);
                 if (words.length === 0) return null;
                 

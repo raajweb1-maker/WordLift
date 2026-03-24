@@ -1,4 +1,4 @@
-export type SynonymCategory = "Academic" | "Professional" | "Poetic" | "Standard";
+export type SynonymCategory = "Academic" | "Professional" | "Poetic" | "Common" | "Standard";
 
 export interface CategorizedSynonym {
   word: string;
@@ -41,6 +41,9 @@ export function categorizeSynonyms(synonyms: string[]): CategorizedSynonym[] {
       // Long single words tend to be more formal
       category = "Professional";
       score = 1;
+    } else {
+      category = "Common";
+      score = 0;
     }
     
     return { word, category, score };
