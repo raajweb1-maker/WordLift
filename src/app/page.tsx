@@ -29,7 +29,7 @@ export default function Home() {
       let data = await fetchWord(query);
       
       if (!data) {
-        const bestMatch = findBestMatch(query);
+        const bestMatch = await findBestMatch(query);
         if (bestMatch && bestMatch !== query.toLowerCase()) {
           data = await fetchWord(bestMatch);
           if (data) {
