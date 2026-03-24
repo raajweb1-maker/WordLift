@@ -85,14 +85,15 @@ export function SearchResult({ data }: { data: any }) {
             </div>
           ) : (
             <div className="space-y-8">
-              {["Academic", "Professional", "Standard"].map(category => {
+              {["Academic", "Poetic", "Professional", "Standard"].map(category => {
                 const words = categorizedSynonyms.filter(s => s.category === category);
                 if (words.length === 0) return null;
                 
                 return (
-                  <div key={category} className="space-y-4 bg-slate-50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-800/60">
+                   <div key={category} className="space-y-4 bg-slate-50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-800/60">
                     <h4 className={`text-sm font-bold uppercase tracking-widest flex items-center gap-2
                       ${category === 'Academic' ? 'text-purple-600 dark:text-purple-400' : 
+                        category === 'Poetic' ? 'text-rose-600 dark:text-rose-400' :
                         category === 'Professional' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}
                     `}>
                       {category} <span className="opacity-50 text-xs">({words.length})</span>
