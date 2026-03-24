@@ -5,22 +5,43 @@ import { WordOfTheDay } from "@/components/WordOfTheDay";
 import { SearchResult } from "@/components/SearchResult";
 
 import { useState } from "react";
+import { findBestMatch } from "@/lib/spelling";
 
 export default function Home() {
   const [wordData, setWordData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [suggestion, setSuggestion] = useState<string | null>(null);
+
+  const fetchWord = async (word: string) => {
+    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+    if (!res.ok) return null;
+    return await res.json();
+  };
 
   const handleSearch = async (query: string) => {
     setIsLoading(true);
     setError("");
     setWordData(null);
+    setSuggestion(null);
+    
     try {
-      const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(query)}`);
-      if (!res.ok) {
-        throw new Error("Word not found. Try another search.");
+      let data = await fetchWord(query);
+      
+      if (!data) {
+        const bestMatch = findBestMatch(query);
+        if (bestMatch && bestMatch !== query.toLowerCase()) {
+          data = await fetchWord(bestMatch);
+          if (data) {
+            setSuggestion(bestMatch);
+          }
+        }
       }
-      const data = await res.json();
+
+      if (!data) {
+        throw new Error("Word not found. Check your spelling or try another search.");
+      }
+      
       setWordData(data[0]);
     } catch (err: any) {
       setError(err.message || "An error occurred");
@@ -52,6 +73,11 @@ export default function Home() {
         <SearchBar onSearch={handleSearch} />
 
         <div className="w-full mt-16 transition-all duration-500 ease-in-out">
+          {suggestion && wordData && (
+             <div className="mb-8 p-4 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 rounded-2xl border border-amber-200 dark:border-amber-900/30 text-center max-w-4xl mx-auto">
+                <p className="font-medium animate-pulse">Showing result for "<span className="font-bold">{suggestion}</span>" instead.</p>
+             </div>
+          )}
           {isLoading ? (
             <div className="flex justify-center py-20">
               <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-500 dark:border-slate-800 dark:border-t-indigo-400 rounded-full animate-spin"></div>

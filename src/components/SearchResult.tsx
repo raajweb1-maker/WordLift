@@ -94,9 +94,10 @@ export function SearchResult({ data }: { data: any }) {
                     <h4 className={`text-sm font-bold uppercase tracking-widest flex items-center gap-2
                       ${category === 'Academic' ? 'text-purple-600 dark:text-purple-400' : 
                         category === 'Poetic' ? 'text-rose-600 dark:text-rose-400' :
+                        category === 'Common' ? 'text-sky-600 dark:text-sky-400' :
                         category === 'Professional' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}
                     `}>
-                      {category} <span className="opacity-50 text-xs">({words.length})</span>
+                      {category === 'Common' ? 'Similar Meanings' : category} <span className="opacity-50 text-xs">({words.length})</span>
                     </h4>
                     <div className="flex flex-wrap gap-2.5">
                       {words.slice(0, 8).map(wordObj => (
