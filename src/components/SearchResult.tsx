@@ -6,7 +6,7 @@ import { EssayMode } from "@/components/EssayMode";
 import { Badge } from "@/components/ui/badge";
 
 export function SearchResult({ data }: { data: any }) {
-  // Extract all synonyms from the API response
+
   const rawSynonyms = useMemo(() => {
     let syns: string[] = [];
     data.meanings.forEach((meaning: any) => {
@@ -73,7 +73,7 @@ export function SearchResult({ data }: { data: any }) {
           ))}
         </div>
 
-        {/* Synonyms Panel */}
+
         <div className="lg:col-span-5 lg:border-l border-slate-200 dark:border-slate-800 lg:pl-10 space-y-8">
           <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 uppercase tracking-widest flex items-center gap-3">
             <span className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl">✨</span>

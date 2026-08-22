@@ -19,7 +19,7 @@ const PROFESSIONAL_WORDS = new Set([
 ]);
 
 export function categorizeSynonyms(synonyms: string[]): CategorizedSynonym[] {
-  // Deduplicate and filter empty
+
   const uniqueSyns = Array.from(new Set(synonyms.filter(Boolean)));
 
   return uniqueSyns.map(word => {
@@ -38,7 +38,7 @@ export function categorizeSynonyms(synonyms: string[]): CategorizedSynonym[] {
       category = "Professional";
       score = 2;
     } else if (word.length >= 9 && !word.includes(" ")) {
-      // Long single words tend to be more formal
+
       category = "Professional";
       score = 1;
     } else {

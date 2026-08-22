@@ -10,7 +10,7 @@ interface EssayModeProps {
 }
 
 export function EssayMode({ originalWord, synonym, category }: EssayModeProps) {
-  // Formatted sample sentence
+
   const essaySentence = `The committee must __[WORD]__ the new policy before it takes effect.`;
   const poetrySentence = `The moon began to __[WORD]__ across the silent, silver lake.`;
   const similarSentence = `I think I'll __[WORD]__ my approach for the next project.`;

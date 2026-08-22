@@ -52,7 +52,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col relative overflow-hidden font-sans selection:bg-indigo-100 selection:text-indigo-900">
-      {/* Decorative background gradients */}
+
       <div className="absolute top-0 inset-x-0 h-[600px] bg-gradient-to-b from-slate-200/50 to-transparent dark:from-slate-900/50 pointer-events-none" />
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-indigo-200/40 rounded-full blur-3xl dark:bg-indigo-900/20 pointer-events-none mix-blend-multiply dark:mix-blend-screen" />
       <div className="absolute top-20 -left-20 w-72 h-72 bg-sky-200/40 rounded-full blur-3xl dark:bg-cyan-900/20 pointer-events-none mix-blend-multiply dark:mix-blend-screen" />
