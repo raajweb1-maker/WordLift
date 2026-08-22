@@ -4,20 +4,15 @@ import { SearchBar } from "@/components/SearchBar";
 import { WordOfTheDay } from "@/components/WordOfTheDay";
 import { SearchResult } from "@/components/SearchResult";
 
-import { useState } from "react";
-import { findBestMatch } from "@/lib/spelling";
+import { useState, useTransition } from "react";
+import { fetchWordAction, findBestMatchAction } from "@/actions/dictionary";
 
 export default function Home() {
   const [wordData, setWordData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [suggestion, setSuggestion] = useState<string | null>(null);
-
-  const fetchWord = async (word: string) => {
-    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
-    if (!res.ok) return null;
-    return await res.json();
-  };
+  const [isPending, startTransition] = useTransition();
 
   const handleSearch = async (query: string) => {
     setIsLoading(true);
@@ -26,26 +21,30 @@ export default function Home() {
     setSuggestion(null);
     
     try {
-      let data = await fetchWord(query);
-      
-      if (!data) {
-        const bestMatch = await findBestMatch(query);
-        if (bestMatch && bestMatch !== query.toLowerCase()) {
-          data = await fetchWord(bestMatch);
+      startTransition(async () => {
+        let data = await fetchWordAction(query);
+        
+        if (!data) {
+          const bestMatch = await findBestMatchAction(query);
+          if (bestMatch && bestMatch !== query.toLowerCase()) {
+            data = await fetchWordAction(bestMatch);
           if (data) {
             setSuggestion(bestMatch);
           }
         }
       }
 
-      if (!data) {
-        throw new Error("Word not found. Check your spelling or try another search.");
-      }
-      
-      setWordData(data[0]);
+        if (!data) {
+          setError("Word not found. Check your spelling or try another search.");
+          setIsLoading(false);
+          return;
+        }
+        
+        setWordData(data[0]);
+        setIsLoading(false);
+      });
     } catch (err: any) {
       setError(err.message || "An error occurred");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -63,7 +62,7 @@ export default function Home() {
             ✨ Professional writing assistant
           </div>
           <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50">
-            Word<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-sky-500">Lift</span>
+            Word<span className="text-indigo-600 dark:text-indigo-400 border-b-[6px] border-indigo-200 dark:border-indigo-900/50 pb-1 -ml-1 pl-1">Lift</span>
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
             Elevate your vocabulary with professional synonyms and master the art of academic writing context.
