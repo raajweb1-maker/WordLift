@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { categorizeSynonyms } from "@/lib/synonyms";
-import { EssayMode } from "@/components/EssayMode";
+import { InlineMode } from "@/components/EssayMode";
 import { Badge } from "@/components/ui/badge";
 
 export function SearchResult({ data }: { data: any }) {
@@ -36,10 +36,6 @@ export function SearchResult({ data }: { data: any }) {
               {data.phonetic}
             </p>
           )}
-          <div className="mt-4 flex gap-2">
-            <EssayMode originalWord={data.word} synonym={data.word} category="Academic" />
-            <EssayMode originalWord={data.word} synonym={data.word} category="Poetic" />
-          </div>
         </div>
         {categorizedSynonyms.length > 0 && (
           <div className="flex gap-2 mb-2 md:mb-0">
@@ -51,6 +47,7 @@ export function SearchResult({ data }: { data: any }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        {/* Meanings / Definitions */}
         <div className="lg:col-span-7 space-y-12">
           {data.meanings.map((meaning: any, i: number) => (
             <div key={i} className="space-y-5">
@@ -77,7 +74,7 @@ export function SearchResult({ data }: { data: any }) {
           ))}
         </div>
 
-
+        {/* Synonyms with Inline Modes */}
         <div className="lg:col-span-5 lg:border-l border-slate-200 dark:border-slate-800 lg:pl-10 space-y-8">
           <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 uppercase tracking-widest flex items-center gap-3">
             <span className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl">✨</span>
@@ -92,24 +89,26 @@ export function SearchResult({ data }: { data: any }) {
               {["Academic", "Poetic", "Professional", "Common", "Standard"].map(category => {
                 const words = categorizedSynonyms.filter(s => s.category === category);
                 if (words.length === 0) return null;
-                
+
                 return (
-                   <div key={category} className="space-y-4 bg-slate-50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-800/60">
+                  <div key={category} className="space-y-4 bg-slate-50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-800/60">
                     <h4 className={`text-sm font-bold uppercase tracking-widest flex items-center gap-2
-                      ${category === 'Academic' ? 'text-purple-600 dark:text-purple-400' : 
+                      ${category === 'Academic' ? 'text-purple-600 dark:text-purple-400' :
                         category === 'Poetic' ? 'text-rose-600 dark:text-rose-400' :
                         category === 'Common' ? 'text-sky-600 dark:text-sky-400' :
                         category === 'Professional' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}
                     `}>
                       {category === 'Common' ? 'Similar Meanings' : category} <span className="opacity-50 text-xs">({words.length})</span>
                     </h4>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="space-y-4">
                       {words.map(wordObj => (
-                        <div key={wordObj.word} className="inline-flex flex-col sm:flex-row items-center gap-1.5 bg-white dark:bg-slate-800 border-2 border-transparent shadow-sm px-3.5 py-2.5 rounded-xl text-sm md:text-base text-slate-800 dark:text-slate-200 font-bold hover:border-indigo-300 dark:hover:border-indigo-700 transition-all hover:-translate-y-0.5 w-full justify-between sm:w-auto">
-                          <span className="w-full sm:w-auto text-left mr-2">{wordObj.word}</span>
-                          <div className="flex items-center justify-end gap-1.5 w-full sm:w-auto">
-                            <EssayMode originalWord={data.word} synonym={wordObj.word} category="Academic" />
-                            <EssayMode originalWord={data.word} synonym={wordObj.word} category="Poetic" />
+                        <div key={wordObj.word} className="bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700 p-4 space-y-3 shadow-sm">
+                          <span className="text-base font-extrabold text-slate-800 dark:text-slate-100 tracking-tight block">
+                            {wordObj.word}
+                          </span>
+                          <div className="grid grid-cols-1 gap-2.5">
+                            <InlineMode word={data.word} synonym={wordObj.word} category="Academic" />
+                            <InlineMode word={data.word} synonym={wordObj.word} category="Poetic" />
                           </div>
                         </div>
                       ))}

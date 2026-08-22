@@ -1,154 +1,85 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Sparkles, ArrowRight, Loader2 } from "lucide-react";
-import { useState, useEffect, useTransition } from "react";
-import { generateContextualSentence } from "@/actions/generate";
+import { useEffect, useState } from "react";
+import { Loader2, BookOpen, Feather } from "lucide-react";
 
-interface EssayModeProps {
-  originalWord: string;
+interface InlineModeProps {
+  word: string;
   synonym: string;
-  category: "Academic" | "Professional" | "Poetic" | "Common" | "Standard";
+  category: "Academic" | "Poetic" | "Professional" | "Common" | "Standard";
 }
 
-export function EssayMode({ originalWord, synonym, category }: EssayModeProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [generatedSentence, setGeneratedSentence] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+export function InlineMode({ word, synonym, category }: InlineModeProps) {
+  const [sentence, setSentence] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (isOpen && !generatedSentence && !isPending && !error) {
-      startTransition(async () => {
-        try {
-          const sentence = await generateContextualSentence(originalWord, synonym, category);
-          setGeneratedSentence(sentence);
-        } catch (err: any) {
-          setError(err.message || "Failed to generate context.");
-        }
-      });
-    }
-  }, [isOpen, originalWord, synonym, category, generatedSentence, error, isPending]);
+    setSentence(null);
+    setLoading(true);
+    setError(false);
 
-  const renderSentence = (highlightClass: string, overrideText?: string) => {
-    if (!generatedSentence) return null;
-    const parts = generatedSentence.split(new RegExp(`(${synonym})`, 'gi'));
-    return (
-      <>
-        {parts.map((part, i) => 
-          part.toLowerCase() === synonym.toLowerCase() ? (
-            <span key={i} className={`font-bold px-1.5 py-0.5 rounded transition-all inline-block ${highlightClass}`}>
-              {overrideText || part}
-            </span>
-          ) : (
-            <span key={i}>{part}</span>
-          )
-        )}
-      </>
+    fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ word, synonym, category }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.error) setError(true);
+        else setSentence(data.sentence);
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, [word, synonym, category]);
+
+  const isPoetic = category === "Poetic";
+  const Icon = isPoetic ? Feather : BookOpen;
+  const colorScheme = isPoetic
+    ? {
+        label: "text-rose-600 dark:text-rose-400",
+        icon: "text-rose-500",
+        highlight: "text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-900/40 px-1 rounded font-bold",
+        border: "border-rose-200 dark:border-rose-900/30",
+        bg: "bg-rose-50/60 dark:bg-rose-950/20",
+      }
+    : {
+        label: "text-indigo-600 dark:text-indigo-400",
+        icon: "text-indigo-500",
+        highlight: "text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/40 px-1 rounded font-bold",
+        border: "border-indigo-200 dark:border-indigo-900/30",
+        bg: "bg-indigo-50/60 dark:bg-indigo-950/20",
+      };
+
+  const highlightSynonym = (text: string) => {
+    const parts = text.split(new RegExp(`(${synonym})`, "gi"));
+    return parts.map((part, i) =>
+      part.toLowerCase() === synonym.toLowerCase() ? (
+        <span key={i} className={colorScheme.highlight}>{part}</span>
+      ) : (
+        <span key={i}>{part}</span>
+      )
     );
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      {/* @ts-expect-error - Radix UI type mismatch */}
-      <DialogTrigger asChild>
-        <button className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded inline-flex items-center gap-1 transition-colors group ml-2 border ${
-          category === "Poetic" 
-            ? "bg-rose-100 hover:bg-rose-200 text-rose-700 dark:bg-rose-900/40 dark:hover:bg-rose-900/80 dark:text-rose-300 border-rose-200 dark:border-rose-800"
-            : category === "Common"
-            ? "bg-sky-100 hover:bg-sky-200 text-sky-700 dark:bg-sky-900/40 dark:hover:bg-sky-900/80 dark:text-sky-300 border-sky-200 dark:border-sky-800"
-            : "bg-indigo-100 hover:bg-indigo-200 text-indigo-700 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/80 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800"
-        }`}>
-          <Sparkles className={`w-3 h-3 group-hover:animate-pulse ${
-            category === "Poetic" ? "text-rose-500" : 
-            category === "Common" ? "text-sky-500" : "text-indigo-500"
-          }`} />
-          {category === "Poetic" ? "Poetry Mode" : category === "Common" ? "Similar Mode" : "Essay Mode"}
-        </button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-slate-200 dark:border-slate-800 shadow-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
-            <Sparkles className={`w-5 h-5 ${
-              category === "Poetic" ? "text-rose-500" : 
-              category === "Common" ? "text-sky-500" : "text-indigo-500"
-            }`} />
-            {category === "Poetic" ? "Inspire Your Verse" : category === "Common" ? "Similar Meanings" : "Elevate Your Tone"}
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-6 pt-4 min-h-[200px]">
-          {isPending && (
-            <div className="flex flex-col items-center justify-center py-12 text-slate-500 animate-pulse">
-              <Loader2 className="w-8 h-8 animate-spin mb-4 text-indigo-500" />
-              <p className="text-sm font-medium">Generating context using AI...</p>
-            </div>
-          )}
-
-          {error && !isPending && (
-            <div className="flex flex-col items-center justify-center py-8 text-red-500 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-900/30">
-              <p className="text-sm font-semibold">{error}</p>
-            </div>
-          )}
-
-          {generatedSentence && !isPending && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-1 h-full bg-slate-300 dark:bg-slate-700"></div>
-                <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3 pl-2">Standard Delivery</h4>
-                <p className="text-slate-700 dark:text-slate-300 pl-2 leading-relaxed text-lg">
-                  {renderSentence("text-slate-900 dark:text-slate-100 bg-slate-200 dark:bg-slate-800", originalWord)}
-                </p>
-              </div>
-              
-              <div className="flex justify-center -my-2 relative z-10">
-                <div className="bg-white dark:bg-slate-950 p-2 rounded-full border border-slate-100 dark:border-slate-800 shadow-sm">
-                  <ArrowRight className="w-5 h-5 text-slate-400 rotate-90" />
-                </div>
-              </div>
-              
-              <div className={`${
-                category === 'Poetic' ? 'bg-rose-50 dark:bg-rose-900/10 border-rose-100 dark:border-rose-900/20' : 
-                category === 'Common' ? 'bg-sky-50 dark:bg-sky-900/10 border-sky-100 dark:border-sky-900/20' :
-                'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-900/20'
-              } p-5 rounded-2xl border shadow-sm relative overflow-hidden`}>
-                <div className={`absolute top-0 left-0 w-1 h-full ${
-                  category === 'Academic' ? 'bg-purple-500' : 
-                  category === 'Poetic' ? 'bg-rose-500' : 
-                  category === 'Common' ? 'bg-sky-500' : 'bg-emerald-500'
-                }`}></div>
-                <h4 className={`text-xs font-bold uppercase tracking-widest mb-3 pl-2 flex items-center gap-2 ${
-                  category === 'Academic' ? 'text-purple-700 dark:text-purple-400' : 
-                  category === 'Poetic' ? 'text-rose-700 dark:text-rose-400' : 
-                  category === 'Common' ? 'text-sky-700 dark:text-sky-400' : 'text-emerald-700 dark:text-emerald-400'
-                }`}>
-                  {category} Context
-                  <span className="flex h-2 w-2 relative">
-                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                      category === 'Academic' ? 'bg-purple-400' : 
-                      category === 'Poetic' ? 'bg-rose-400' : 
-                      category === 'Common' ? 'bg-sky-400' : 'bg-emerald-400'
-                    }`}></span>
-                    <span className={`relative inline-flex rounded-full h-2 w-2 ${
-                      category === 'Academic' ? 'bg-purple-500' : 
-                      category === 'Poetic' ? 'bg-rose-500' : 
-                      category === 'Common' ? 'bg-sky-500' : 'bg-emerald-500'
-                    }`}></span>
-                  </span>
-                </h4>
-                <p className={`text-slate-900 dark:text-slate-100 font-medium pl-2 leading-relaxed text-lg ${category === 'Poetic' ? 'italic' : ''}`}>
-                  {renderSentence( 
-                    category === 'Academic' ? 'text-purple-900 dark:text-purple-100 bg-purple-200 dark:bg-purple-900/50' : 
-                    category === 'Poetic' ? 'text-rose-900 dark:text-rose-100 bg-rose-200 dark:bg-rose-900/50' :
-                    category === 'Common' ? 'text-sky-900 dark:text-sky-100 bg-sky-200 dark:bg-sky-900/50' :
-                    'text-emerald-900 dark:text-emerald-100 bg-emerald-200 dark:bg-emerald-900/50'
-                  )}
-                </p>
-              </div>
-            </div>
-          )}
+    <div className={`rounded-xl border p-3 text-sm ${colorScheme.bg} ${colorScheme.border}`}>
+      <div className={`flex items-center gap-1.5 mb-2 text-xs font-bold uppercase tracking-widest ${colorScheme.label}`}>
+        <Icon className={`w-3 h-3 ${colorScheme.icon}`} />
+        {isPoetic ? "Poetic" : "Essay"}
+      </div>
+      {loading ? (
+        <div className="flex items-center gap-2 text-slate-400 text-xs">
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          Generating...
         </div>
-      </DialogContent>
-    </Dialog>
+      ) : error ? (
+        <p className="text-xs text-red-400 italic">Could not generate sentence.</p>
+      ) : (
+        <p className={`leading-relaxed text-slate-700 dark:text-slate-300 ${isPoetic ? "italic" : ""}`}>
+          {sentence && highlightSynonym(sentence)}
+        </p>
+      )}
+    </div>
   );
 }
