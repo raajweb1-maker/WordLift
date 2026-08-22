@@ -31,16 +31,19 @@ Do not use quotes. Do not provide any conversational filler or introductions. Ou
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://wordlift.vercel.app",
+        "X-Title": "WordLift",
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3.3-70b-instruct",
+        model: "meta-llama/llama-3.1-8b-instruct:free",
         messages: [{ role: "user", content: prompt }],
       }),
     });
 
     if (!res.ok) {
       const text = await res.text();
-      return NextResponse.json({ error: `OpenRouter error: ${text}` }, { status: res.status });
+      console.error("[generate] OpenRouter error:", res.status, text);
+      return NextResponse.json({ error: `OpenRouter error: ${res.status}` }, { status: res.status });
     }
 
     const data = await res.json();

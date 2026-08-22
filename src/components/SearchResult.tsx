@@ -46,9 +46,9 @@ export function SearchResult({ data }: { data: any }) {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* Meanings / Definitions */}
-        <div className="lg:col-span-7 space-y-12">
+        <div className="lg:col-span-7 space-y-12" ref={(el) => { if (el) el.parentElement!.style.setProperty('--left-h', el.offsetHeight + 'px'); }}>
           {data.meanings.map((meaning: any, i: number) => (
             <div key={i} className="space-y-5">
               <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-200 flex items-center gap-4">
@@ -75,7 +75,7 @@ export function SearchResult({ data }: { data: any }) {
         </div>
 
         {/* Synonyms with Inline Modes */}
-        <div className="lg:col-span-5 lg:border-l border-slate-200 dark:border-slate-800 lg:pl-10 space-y-8">
+        <div className="lg:col-span-5 lg:border-l border-slate-200 dark:border-slate-800 lg:pl-10 space-y-8 lg:sticky lg:top-6 lg:max-h-[calc(var(--left-h,80vh)+2rem)] lg:overflow-y-auto lg:pr-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
           <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 uppercase tracking-widest flex items-center gap-3">
             <span className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl">✨</span>
             Elevated Synonyms
