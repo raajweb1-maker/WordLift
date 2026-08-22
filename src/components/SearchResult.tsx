@@ -36,6 +36,10 @@ export function SearchResult({ data }: { data: any }) {
               {data.phonetic}
             </p>
           )}
+          <div className="mt-4 flex gap-2">
+            <EssayMode originalWord={data.word} synonym={data.word} category="Academic" />
+            <EssayMode originalWord={data.word} synonym={data.word} category="Poetic" />
+          </div>
         </div>
         {categorizedSynonyms.length > 0 && (
           <div className="flex gap-2 mb-2 md:mb-0">
@@ -99,13 +103,14 @@ export function SearchResult({ data }: { data: any }) {
                     `}>
                       {category === 'Common' ? 'Similar Meanings' : category} <span className="opacity-50 text-xs">({words.length})</span>
                     </h4>
-                    <div className="flex flex-wrap gap-2.5">
-                      {words.slice(0, 8).map(wordObj => (
-                        <div key={wordObj.word} className="inline-flex items-center gap-1.5 bg-white dark:bg-slate-800 border-2 border-transparent shadow-sm px-3.5 py-1.5 rounded-xl text-sm md:text-base text-slate-800 dark:text-slate-200 font-bold hover:border-indigo-300 dark:hover:border-indigo-700 transition-all hover:-translate-y-0.5 w-full justify-between sm:w-auto">
-                          {wordObj.word}
-                          {category !== "Standard" && (
-                            <EssayMode originalWord={data.word} synonym={wordObj.word} category={category as any} />
-                          )}
+                    <div className="flex flex-wrap gap-3">
+                      {words.map(wordObj => (
+                        <div key={wordObj.word} className="inline-flex flex-col sm:flex-row items-center gap-1.5 bg-white dark:bg-slate-800 border-2 border-transparent shadow-sm px-3.5 py-2.5 rounded-xl text-sm md:text-base text-slate-800 dark:text-slate-200 font-bold hover:border-indigo-300 dark:hover:border-indigo-700 transition-all hover:-translate-y-0.5 w-full justify-between sm:w-auto">
+                          <span className="w-full sm:w-auto text-left mr-2">{wordObj.word}</span>
+                          <div className="flex items-center justify-end gap-1.5 w-full sm:w-auto">
+                            <EssayMode originalWord={data.word} synonym={wordObj.word} category="Academic" />
+                            <EssayMode originalWord={data.word} synonym={wordObj.word} category="Poetic" />
+                          </div>
                         </div>
                       ))}
                     </div>
